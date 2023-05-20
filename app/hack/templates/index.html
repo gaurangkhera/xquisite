@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}
+    Home
+{% endblock title %}
+{% block content %}
+<div class="bg-white pb-6 sm:pb-8 lg:pb-12">
+    <div class="mx-auto max-w-screen-2xl px-4 md:px-8">
+      <section class="flex flex-col justify-between gap-6 sm:gap-10 md:gap-16 lg:flex-row">
+        <!-- content - start -->
+        <div class="flex flex-col items-center justify-center sm:text-center lg:items-start lg:py-12 lg:text-left xl:w-5/12 xl:py-24">
+          <h1 class="text-black-800 mb-8 text-4xl font-bold sm:text-5xl md:mb-12 md:text-6xl">Level up your IPL game now.</h1>
+  
+          <p class="mb-8 leading-relaxed text-gray-500 md:mb-12 lg:w-4/5 xl:text-lg">Enter a new world of IPL match predictions, game insights and analysis through Doofenshmirtz Co.</p>
+  
+          <div class="flex w-full gap-2 md:max-w-md">
+            {% if not current_user.is_authenticated %}
+            <a href="/auth/new" class="border border-black bg-black hover:bg-white text-white hover:text-black transition-all 2s rounded-full px-8 py-2">Get started</a>
+            <a href="/auth/signin" class="border border-black bg-white hover:bg-black text-black hover:text-white transition-all 2s rounded-full px-8 py-2">Sign in</a>
+            {% else %}
+            <a href="/leaderboard" class="border border-black bg-black hover:bg-white text-white hover:text-black transition-all 2s rounded-full px-8 py-2">Leaderboard</a>
+            <a href="/predict" class="border border-black bg-white hover:bg-black text-black hover:text-white transition-all 2s rounded-full px-8 py-2">Predict</a>
+            {% endif %}
+          </div>
+        </div>
+        <!-- content - end -->
+        <div class="h-48 overflow-hidden rounded-lg mt-8 lg:h-auto xl:w-5/12"> 
+            <img src="{{url_for('static', filename='hero.svg')}}" alt="" srcset="">
+        </div>
+      </section>
+    </div>
+  </div>
+{% endblock content %}

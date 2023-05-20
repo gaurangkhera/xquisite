@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}
+    Leaderboard
+{% endblock title %}
+{% block content %}
+<center>
+<div class="flex flex-col align-center mx-auto">
+    <div class="">
+      <div class="inline-block py-2 sm:px-6 lg:px-8">
+        <div class="overflow-hidden">
+          <table class="text-left text-sm font-light">
+            <thead class="border-b font-medium dark:border-neutral-500">
+              <tr>
+                <th scope="col" class="px-6 py-4">#</th>
+                <th scope="col" class="px-6 py-4">Team</th>
+                <th scope="col" class="px-6 py-4">Wins</th>
+                <th scope="col" class="px-6 py-4">Losses</th>
+                <th scope="col" class="px-6 py-4">Points</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for t in leaderboard %}
+              <tr class="border-b dark:border-neutral-500">
+                <td class="whitespace-nowrap px-6 py-4 font-medium">{{t['Index']}}</td>
+                <td class="whitespace-nowrap px-6 py-4 font-medium">{{t['Team']}}</td>
+                <td class="whitespace-nowrap px-6 py-4 font-medium">{{t['Wins']}}</td>
+                <td class="whitespace-nowrap px-6 py-4 font-medium">{{t['Losses']}}</td>
+                <td class="whitespace-nowrap px-6 py-4 font-medium">{{t['Points']}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  </center>
+{% endblock content %}
