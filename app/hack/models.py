@@ -11,6 +11,20 @@ class User(db.Model,UserMixin):
     username = db.Column(db.String, nullable=False)
     email = db.Column(db.String(64),index=True)
     password = db.Column(db.String)
+    seats_bought = db.relationship('Seat')
+    
+class Stadium(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    match = db.Column(db.String)
+    seats = db.relationship('Seat')
+    
+class Seat(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    taken = db.Column(db.Boolean, default=False)
+    price = db.Column(db.Integer)
+    buyer = db.Column(db.Integer, db.ForeignKey('user.id'))
+    stadium = db.Column(db.Integer, db.ForeignKey('stadium.id'))
 
 
 

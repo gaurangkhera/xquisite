@@ -1,8 +1,8 @@
 from hack import app, create_db, db
-from flask import render_template, redirect, url_for
+from flask import render_template, redirect, url_for, request
 from flask_login import current_user, login_user, logout_user, login_required
-from hack.forms import LoginForm, RegForm, PredictForm
-from hack.models import User
+from hack.forms import LoginForm, RegForm, PredictForm, BookSeatForm
+from hack.models import User, Stadium, Seat
 from werkzeug.security import generate_password_hash, check_password_hash
 from bs4 import BeautifulSoup
 import requests
@@ -12,7 +12,9 @@ from sklearn.model_selection import train_test_split
 import dataGenerator as d
 import leaderboardGenerator as l
 import random
+import stripe
 
+stripe.api_key = app.config['STRIPE_SECRET_KEY']
 teamsDF = pd.read_csv('./data/Team.csv')
 
 matchesTeamsDF = pd.read_csv("./data/gen/match_team.csv")
@@ -31,7 +33,20 @@ create_db(app)
 
 @app.route('/')
 def home():
+    # seats = Seat.query.all()
+    # for i in seats:
+    #     i.price = 1000
+    #     db.session.add(i)
+    #     db.session.commit()
     return render_template('index.html')
+
+@app.route('/deleteseat/<id>')
+def delete_seat(id):
+    seat = Seat.query.filter_by(id=id).first()
+    current_user.seats_bought.remove(seat)
+    db.session.add(current_user)
+    db.session.commit()
+    return redirect(url_for('book_seat'))
 
 @app.route('/leaderboard')
 def leaderboard():
@@ -46,6 +61,64 @@ def leaderboard():
     #     leaderboard.append(name)
     leaderboard = l.team_data
     return render_template('leaderboard.html', leaderboard=leaderboard)
+
+@app.route('/bookseats')
+@login_required
+def book_seat():
+    seats = Seat.query.all()
+    stadiums = Stadium.query.filter_by(id=1).first()
+    total = 0
+    for i in current_user.seats_bought:
+        total += i.price
+    return render_template('bookseat.html', seats=seats, stadium=stadiums, total=total)
+
+@app.route('/pay')
+def pay():
+    key=app.config['STRIPE_PUBLISHABLE_KEY']
+    total  = 0
+    for i in current_user.seats_bought:
+        total += i.price
+    return render_template('buy_seats.html', key=key, total=total)
+
+@app.route('/buyseats')
+@login_required
+def buy_cart():
+        total = 0
+        for i in current_user.seats_bought:
+            total += i.price
+        customer = stripe.Customer.create(
+                email=current_user.email,
+                source=request.form['stripeToken']
+            )
+
+        stripe.Charge.create(
+                customer=customer.id,
+                amount=total,
+                currency='inr',
+                description='Seat purchase'
+            )
+        return redirect(url_for('thank_you'))  
+    
+@app.route('/thankyou', methods=['GET', 'POST'])
+@login_required
+def thank_you():
+    for i in current_user.seats_bought:
+        i.taken = 1
+        db.session.add(i)
+        db.session.commit()
+    current_user.seats_bought = []
+    db.session.add(current_user)
+    db.session.commit()
+    return render_template('thankyou.html')
+
+@app.route('/select_seat/<id>')
+@login_required
+def select_seat(id):
+    seat = Seat.query.filter_by(id=id).first()
+    current_user.seats_bought.append(seat)
+    db.session.add(current_user)
+    db.session.commit()
+    return redirect(url_for('book_seat'))
 
 @app.route('/auth/new', methods=['GET', 'POST'])
 def reg():

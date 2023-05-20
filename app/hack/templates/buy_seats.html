@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}
+    Buy seats
+{% endblock title %}
+{% block content %}
+<div class="flex align-center justify-center">
+    <h2 class="text-3xl">Purchasing <span class="text-bold">{% for seat in current_user.seats_bought %}
+        {% if seat != current_user.seats_bought[-1] %}
+        Seat {{seat.id}},
+        {% else %}
+        Seat {{seat.id}}
+        {% endif %}
+    {% endfor %}</span></h2><br><br></div>
+    <form method="post" action="/thankyou" class="flex align-center justify-center">
+        <script
+          src="https://checkout.stripe.com/checkout.js"
+          class="stripe-button"
+          data-key="{{ key }}"
+          data-description="Seat purchase"
+          data-amount="{{total*100}}"
+          data-locale="inr">
+        </script>
+      </form>
+</div>
+{% endblock content %}
