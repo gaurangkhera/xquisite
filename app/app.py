@@ -1,7 +1,7 @@
 from hack import app, create_db, db
 from flask import render_template, redirect, url_for, request
 from flask_login import current_user, login_user, logout_user, login_required
-from hack.forms import LoginForm, RegForm, PredictForm, BookSeatForm
+from hack.forms import LoginForm, RegForm, PredictForm
 from hack.models import User, Stadium, Seat
 from werkzeug.security import generate_password_hash, check_password_hash
 from bs4 import BeautifulSoup
@@ -70,7 +70,7 @@ def book_seat():
     total = 0
     for i in current_user.seats_bought:
         total += i.price
-    return render_template('bookseat.html', seats=seats, stadium=stadiums, total=total)
+    return render_template('bookseat.html', seats=seats, stadium=stadiums, total=total, key=app.config['STRIPE_PUBLISHABLE_KEY'])
 
 @app.route('/pay')
 def pay():
