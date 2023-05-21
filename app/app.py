@@ -46,7 +46,7 @@ def delete_seat(id):
     current_user.seats_bought.remove(seat)
     db.session.add(current_user)
     db.session.commit()
-    return redirect(url_for('book_seat'))
+    return redirect(url_for('cart'))
 
 @app.route('/leaderboard')
 def leaderboard():
@@ -72,13 +72,12 @@ def book_seat():
         total += i.price
     return render_template('bookseat.html', seats=seats, stadium=stadiums, total=total, key=app.config['STRIPE_PUBLISHABLE_KEY'])
 
-@app.route('/pay')
-def pay():
-    key=app.config['STRIPE_PUBLISHABLE_KEY']
-    total  = 0
-    for i in current_user.seats_bought:
-        total += i.price
-    return render_template('buy_seats.html', key=key, total=total)
+@app.route('/cart')
+def cart():
+    total = 0
+    for s in current_user.seats_bought:
+        total += s.price
+    return render_template('cart.html', total=total, key=app.config['STRIPE_PUBLISHABLE_KEY'])
 
 @app.route('/buyseats')
 @login_required
