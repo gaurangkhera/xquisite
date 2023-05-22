@@ -81,7 +81,7 @@
                 {% endif %}
                 {% if current_user.membership == "Elite" %}
                 <span class="text-lg font-bold">Rs. {{elite}}</span>
-                {% else %}
+                {% elif current_user.membership = "" %}
                 <span class="text-lg font-bold">Rs. {{total}}</span>
                 {% endif %}
                 
