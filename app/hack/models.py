@@ -12,7 +12,8 @@ class User(db.Model,UserMixin):
     email = db.Column(db.String(64),index=True)
     password = db.Column(db.String)
     membership = db.Column(db.String)
-    predictions = db.Column(db.Integer)
+    predictions = db.Column(db.Integer, default=10)
+    used = db.Column(db.Integer, default=0)
     seats_bought = db.relationship('Seat')
     
 class Stadium(db.Model):

@@ -39,6 +39,12 @@ def home():
 @login_required
 def upgraded(membership):
     current_user.membership = membership.title()
+    if membership == "Premium":
+        current_user.predictions = 20
+    if membership == "Pro":
+        current_user.predictions = 50
+    if membership == "Elite":
+        current_user.predictions = 100
     db.session.add(current_user)
     db.session.commit()
     return render_template('thankyouupgrade.html')
@@ -87,7 +93,7 @@ def cart():
     interest = 0
     for s in current_user.seats_bought:
         subtotal += s.price
-    if total > 5000:
+    if subtotal > 5000:
         interest = 5/100
         total = subtotal + subtotal * interest
     else:
@@ -178,53 +184,56 @@ def login():
 @app.route('/predict', methods=['GET', 'POST'])
 @login_required
 def predict():
-    global team_short_code, opponent_short_code
-    form = PredictForm()
-    mess = ''
-    prediction = ''
-    if form.validate_on_submit():
-        if form.team1.data == form.team2.data:
-            mess = 'Both teams cannot be the same.'
-            prediction = ''
-        teamCode = form.team1.data
-        while len(teamsDF[teamsDF["Team_Short_Code"] == teamCode]) == 0:
+    if current_user.used < current_user.predictions:
+        global team_short_code, opponent_short_code
+        form = PredictForm()
+        mess = ''
+        prediction = ''
+        if form.validate_on_submit():
+            if form.team1.data == form.team2.data:
+                mess = 'Both teams cannot be the same.'
+                prediction = ''
             teamCode = form.team1.data
-        team_short_code = teamCode
+            while len(teamsDF[teamsDF["Team_Short_Code"] == teamCode]) == 0:
+                teamCode = form.team1.data
+            team_short_code = teamCode
 
-        opponentCode = form.team2.data
-        while len(teamsDF[teamsDF["Team_Short_Code"] == opponentCode]) == 0:
             opponentCode = form.team2.data
-        opponent_short_code = opponentCode
-        teamId = teamsDF.loc[teamsDF["Team_Short_Code"] == teamCode, 'Team_Id'].values[0]
-        opponentId = teamsDF.loc[teamsDF["Team_Short_Code"] == opponentCode, 'Team_Id'].values[0]
+            while len(teamsDF[teamsDF["Team_Short_Code"] == opponentCode]) == 0:
+                opponentCode = form.team2.data
+            opponent_short_code = opponentCode
+            teamId = teamsDF.loc[teamsDF["Team_Short_Code"] == teamCode, 'Team_Id'].values[0]
+            opponentId = teamsDF.loc[teamsDF["Team_Short_Code"] == opponentCode, 'Team_Id'].values[0]
 
-        tossCode = teamsDF.loc[teamsDF["Team_Short_Code"] == form.toss_winner.data, 'Team_Id'].values[0]
-        while tossCode != teamId and tossCode != opponentId:
             tossCode = teamsDF.loc[teamsDF["Team_Short_Code"] == form.toss_winner.data, 'Team_Id'].values[0]
+            while tossCode != teamId and tossCode != opponentId:
+                tossCode = teamsDF.loc[teamsDF["Team_Short_Code"] == form.toss_winner.data, 'Team_Id'].values[0]
 
-        tossWon = tossCode
+            tossWon = tossCode
 
-        batCode = teamCode if tossWon == teamId else opponentCode
-
-        while batCode != teamCode and batCode != opponentCode:
             batCode = teamCode if tossWon == teamId else opponentCode
 
-        batFirst = teamsDF.loc[teamsDF["Team_Short_Code"] == batCode, 'Team_Id'].values[0]
+            while batCode != teamCode and batCode != opponentCode:
+                batCode = teamCode if tossWon == teamId else opponentCode
 
-        px = d.generatePredictData(int(teamId), int(opponentId), int(tossWon), int(batFirst))
-        px = px.drop(['Match_Id', 'Match_Won'], axis=1)
+            batFirst = teamsDF.loc[teamsDF["Team_Short_Code"] == batCode, 'Team_Id'].values[0]
 
-        px = preprocessing.scale(px)
+            px = d.generatePredictData(int(teamId), int(opponentId), int(tossWon), int(batFirst))
+            px = px.drop(['Match_Id', 'Match_Won'], axis=1)
 
-        lin_svm = svm.LinearSVC()
-        lin_svm.fit(X_train, y_train)
-        pred = lin_svm.predict(px)
-        if pred[0] == 1:
-            prediction = f'{team_short_code} has a greater chance of winning.'
-        else:
-            prediction = f'{opponent_short_code} has a greater chance of winning.'
+            px = preprocessing.scale(px)
 
-    current_user.predictions += 1
+            lin_svm = svm.LinearSVC()
+            lin_svm.fit(X_train, y_train)
+            pred = lin_svm.predict(px)
+            if pred[0] == 1:
+                prediction = f'{team_short_code} has a greater chance of winning.'
+            else:
+                prediction = f'{opponent_short_code} has a greater chance of winning.'
+
+    else:
+        return redirect(url_for('upgrade'))
+    current_user.used += 1
     db.session.add(current_user)
     db.session.commit()
     return render_template('predict.html', prediction=prediction, form=form, mess=mess)
