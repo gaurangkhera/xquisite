@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}
+    Upgrade
+{% endblock title %}
+{% block content %}
+<div class="bg-white py-6 sm:py-8 lg:py-12">
+    <div class="mx-auto max-w-screen-2xl px-4 md:px-8">
+      <div class="mb-10 md:mb-16">
+        <h2 class="mb-4 text-center text-2xl font-bold text-gray-800 md:mb-6 lg:text-3xl">Upgrade membership</h2>
+        <p class="mx-auto max-w-screen-md text-center text-gray-500 md:text-lg">Upgrade your membership to enjoy a variety of features and support us.
+      </div>
+      <div class="grid gap-4 sm:grid-cols-2 md:gap-8 xl:grid-cols-3">
+        <div class="flex flex-col rounded-lg border p-4 md:p-6">
+          <h3 class="mb-2 text-lg font-semibold md:text-xl">Premium</h3>
+          <p class="mb-4 text-gray-500">1. 20 predictions</p>
+          <p class="mb-4 text-gray-500">2. 5% discount on seat booking.</p>
+          <form method="post" action="/upgraded/premium" class="flex align-center justify-center">
+                <script
+                  src="https://checkout.stripe.com/checkout.js"
+                  class="stripe-button"
+                  data-key="{{ key }}"
+                  data-description="Premium"
+                  data-amount="19900"
+                  data-locale="india"
+                  data-currency="inr">
+                </script>
+              </form>
+        </div>
+        <div class="flex flex-col rounded-lg border p-4 md:p-6">
+          <h3 class="mb-2 text-lg font-semibold md:text-xl">Pro</h3>
+          <p class="mb-4 text-gray-500">1. 50 predictions</p>
+          <p class="mb-4 text-gray-500">2. 10% discount on seat booking.</p>
+          <form method="post" action="/upgraded/pro" class="flex align-center justify-center">
+                <script
+                  src="https://checkout.stripe.com/checkout.js"
+                  class="stripe-button"
+                  data-key="{{ key }}"
+                  data-description="Pro"
+                  data-amount="39900"
+                  data-locale="india"
+                  data-currency="inr">
+                </script>
+              </form>
+        </div>
+        <div class="flex flex-col rounded-lg border p-4 md:p-6">
+          <h3 class="mb-2 text-lg font-semibold md:text-xl">Elite</h3>
+          <p class="mb-4 text-gray-500">1. 100 predictions.</p>
+          <p class="mb-4 text-gray-500">2. 14% discount on seat booking.</p>
+          <form method="post" action="/upgraded/elite" class="flex align-center justify-center">
+            <script
+              src="https://checkout.stripe.com/checkout.js"
+              class="stripe-button"
+              data-key="{{ key }}"
+              data-description="Elite"
+              data-amount="49900"
+              data-locale="auto"
+              data-currency="inr">
+            </script>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+{% endblock content %}

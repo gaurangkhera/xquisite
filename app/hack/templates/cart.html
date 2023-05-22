@@ -41,24 +41,93 @@
       </div>
       <div class="flex flex-col items-end gap-4">
         <div class="w-full rounded-lg bg-gray-100 p-4 sm:max-w-xs mr-72">
-          <div class="">
+          {% if subtotal > 0 %}
+          <div class="flex justify-between gap-4 text-gray-500">
+            <span>Subtotal</span>
+            <span>Rs. {{subtotal}}</span>
+          </div>
+          <div class="flex justify-between text-gray-500">
+            <span>Tax</span>
+            <span>Rs. {{total-subtotal}} ({{tax*100}}%)</span>
+          </div>
+          {% if current_user.membership == 'Premium'  %}
+          <div class="flex justify-between text-gray-500">
+            <span>Discount</span>
+            <span>Rs. {{total-premium}}</span>
+          </div>
+          {% endif %}
+          {% if current_user.membership == 'Pro'  %}
+          <div class="flex justify-between text-gray-500">
+            <span>Discount</span>
+            <span>Rs. {{total-pro}}</span>
+          </div>
+          {% endif %}
+          {% if current_user.membership == 'Elite'  %}
+          <div class="flex justify-between text-gray-500">
+            <span>Discount</span>
+            <span>Rs. {{total-elite}}</span>
+          </div>
+          {% endif %}
+          {% endif %}
+          <div class="mt-2 pt-2">
             <div class="flex items-start justify-between gap-4 text-gray-800">
               <span class="text-lg font-bold">Total</span>
               <span class="flex flex-col items-end">
+                {% if current_user.membership == "Premium" %}
+                <span class="text-lg font-bold">Rs. {{premium}}</span>
+                {% endif %}
+                {% if current_user.membership == "Pro" %}
+                <span class="text-lg font-bold">Rs. {{pro}}</span>
+                {% endif %}
+                {% if current_user.membership == "Elite" %}
+                <span class="text-lg font-bold">Rs. {{elite}}</span>
+                {% else %}
                 <span class="text-lg font-bold">Rs. {{total}}</span>
+                {% endif %}
+                
+
               </span>
             </div>
             {% if total > 0 %}
+            {% if current_user.membership == "Premium" %}
+            <form method="post" action="/upgraded/elite" class="flex align-center justify-center">
+              <script
+                src="https://checkout.stripe.com/checkout.js"
+                class="stripe-button"
+                data-key="{{ key }}"
+                data-description="Seat purchase"
+                data-amount="{{premium*100}}"
+                data-locale="auto"
+                data-currency="inr">
+              </script>
+            </form>
+            {% endif %}
+            {% if current_user.membership == "Pro" %}
+            <form method="post" action="/upgraded/elite" class="flex align-center justify-center">
+              <script
+                src="https://checkout.stripe.com/checkout.js"
+                class="stripe-button"
+                data-key="{{ key }}"
+                data-description="Seat purchase"
+                data-amount="{{pro*100}}"
+                data-locale="auto"
+                data-currency="inr">
+              </script>
+            </form>
+            {% endif %}
+            {% if current_user.membership == "Elite" %}
             <form method="post" action="/thankyou" class="flex align-center justify-center">
-                <script
-                  src="https://checkout.stripe.com/checkout.js"
-                  class="stripe-button"
-                  data-key="{{ key }}"
-                  data-description="Seat purchase"
-                  data-amount="{{total*100}}"
-                  data-locale="inr">
-                </script>
-              </form>
+              <script
+                src="https://checkout.stripe.com/checkout.js"
+                class="stripe-button"
+                data-key="{{ key }}"
+                data-description="Seat purchase"
+                data-amount="{{elite*100}}"
+                data-locale="auto"
+                data-currency="inr">
+              </script>
+            </form>
+            {% endif %}
             {% endif %}
           </div>
         </div>

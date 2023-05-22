@@ -33,12 +33,20 @@ create_db(app)
 
 @app.route('/')
 def home():
-    # seats = Seat.query.all()
-    # for i in seats:
-    #     i.price = 1000
-    #     db.session.add(i)
-    #     db.session.commit()
     return render_template('index.html')
+
+@app.route('/upgraded/<membership>', methods=['GET', 'POST'])
+@login_required
+def upgraded(membership):
+    current_user.membership = membership.title()
+    db.session.add(current_user)
+    db.session.commit()
+    return render_template('thankyouupgrade.html')
+
+@app.route('/upgrade')
+@login_required
+def upgrade():
+    return render_template('membership.html', key=app.config['STRIPE_PUBLISHABLE_KEY'])
 
 @app.route('/deleteseat/<id>')
 def delete_seat(id):
@@ -75,9 +83,20 @@ def book_seat():
 @app.route('/cart')
 def cart():
     total = 0
+    subtotal = 0
+    interest = 0
     for s in current_user.seats_bought:
-        total += s.price
-    return render_template('cart.html', total=total, key=app.config['STRIPE_PUBLISHABLE_KEY'])
+        subtotal += s.price
+    if total > 5000:
+        interest = 5/100
+        total = subtotal + subtotal * interest
+    else:
+        interest = 15/100
+        total = subtotal + subtotal * interest
+    premium = total - 5/100 * total
+    pro = total - 10/100 * total
+    elite = total - 14/100 * total
+    return render_template('cart.html', total=total, key=app.config['STRIPE_PUBLISHABLE_KEY'], tax=interest, subtotal=subtotal, premium=premium, pro=pro, elite=elite)
 
 @app.route('/buyseats')
 @login_required
@@ -157,6 +176,7 @@ def login():
     return render_template('login.html', mess=mess, form=form)
 
 @app.route('/predict', methods=['GET', 'POST'])
+@login_required
 def predict():
     global team_short_code, opponent_short_code
     form = PredictForm()
@@ -204,6 +224,9 @@ def predict():
         else:
             prediction = f'{opponent_short_code} has a greater chance of winning.'
 
+    current_user.predictions += 1
+    db.session.add(current_user)
+    db.session.commit()
     return render_template('predict.html', prediction=prediction, form=form, mess=mess)
 
 
