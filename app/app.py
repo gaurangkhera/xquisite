@@ -33,6 +33,25 @@ create_db(app)
 
 @app.route('/')
 def home():
+#     stadium = Stadium(name='M.A. Chidambaram Stadium', match='GT vs CSK')
+#     db.session.add(stadium)
+#     db.session.commit()
+#     for i in range(25):
+#         seat = Seat(price=2500, category='Fourth class', stadium=1)
+#         db.session.add(seat)
+#         db.session.commit()
+#     for i in range(25):
+#         seat = Seat(price=4000, category='Third class', stadium=1)
+#         db.session.add(seat)
+#         db.session.commit()
+#     for i in range(25):
+#         seat = Seat(price=6000, category='Second class', stadium=1)
+#         db.session.add(seat)
+#         db.session.commit()
+#     for i in range(25):
+#         seat = Seat(price=10000, category='First class', stadium=1)
+#         db.session.add(seat)
+#         db.session.commit()
     return render_template('index.html')
 
 @app.route('/upgraded/<membership>', methods=['GET', 'POST'])
